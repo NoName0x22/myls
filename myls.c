@@ -7,7 +7,7 @@
 
 /* Struktura Przechowujaca Dane o Pojednycznym Pliku ! */
 typedef struct{
-	struct dirent* dokument;
+	char nazwa[255];
 	struct stat dokumentstat;
 }plik;
 
@@ -17,34 +17,34 @@ int porownanie(const void *a, const void*b){
 	const plik *pa = (const plik *)a;
 	const plik *pb = (const plik *)b;
 	
-	return(strcmp(pa->dokument->d_name,pb->dokument->d_name));
+	return(strcmp(pa->nazwa,pb->nazwa));
 
 }
 
 /* Funkcja Konwertująca st_mode pliku na czytelną wersję  */
 
-char *uprawnienia(unsigned int Prawa){
+/*char *uprawnienia(unsigned int Prawa){
 	char buffer[25];
 	char typpliku;
 	if(Prawa & S_IFREG){
-		typplikiu = '-';
+		typpliku = '-';
 	}
 	if(Prawa & S_IFDIR){
-		typplikiu = "d";
+		typpliku = 'd';
 	}
 	if(Prawa & S_IFLNK){
-		typplikiu = "l";
+		typpliku = 'l';
 	}
 	if(Prawa & S_IFIFO){
-		typplikiu = "p";
+		typpliku = 'p';
 	}
 	if(Prawa & S_IFSOCK){
-		typplikiu = "s";
+		typpliku = 's';
 	}
 	if(Prawa & S_IFCHR){
-		typplikiu = "c";
+		typpliku = 'c';
 	}if(Prawa & S_IFBLK){
-		typplikiu = "b";
+		typpliku = 'b';
 	}
 	
 	sprintf(buffer,"%c %c %c %c %c %c %c %c %c %c",typpliku,
@@ -58,7 +58,7 @@ char *uprawnienia(unsigned int Prawa){
 			(Prawa & S_IWOTH ? 'x' : '-'),
 			(Prawa & S_IXOTH ? 'x' : '-'));
 	return buffer;
-}
+}*/
 
 
 int main(){
@@ -81,21 +81,21 @@ int main(){
 	}
 	
 	rewinddir(dirp); 
-        tablicaPlikow = malloc(sizeof(plik) * iloscplikow);
+    tablicaPlikow = malloc(sizeof(plik) * iloscplikow);
 	
 	for(;;){
 		direntp = readdir(dirp);
 		if(direntp == NULL) break;
 		stat(direntp->d_name,&filestat);
-		tablicaPlikow[i].dokument = direntp;
 		tablicaPlikow[i].dokumentstat = filestat;
+		sprintf(tablicaPlikow[i].nazwa, "%s", direntp->d_name);
 		i++;
 	}
 	
 	qsort(tablicaPlikow,iloscplikow,sizeof(plik),porownanie); /* QSort Uzyty do Posortowania Nazw Plikow W Porzadku Alfabetycznym !! */
 
 	for(i = 0; i < iloscplikow; i++){
-		printf("%u %s\n",tablicaPlikow[i].dokumentstat.st_mode,tablicaPlikow[i].dokument->d_name);
+		printf("%u %s\n",tablicaPlikow[i].dokumentstat.st_mode,tablicaPlikow[i].nazwa);
 	
 	}
 	
