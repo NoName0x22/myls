@@ -128,10 +128,11 @@ int main(){
 
 	for(i = 0; i < iloscplikow; i++){
 		uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
-		printf(" %ld %s %s %s\n",
-		tablicaPlikow[i].dokumentstat.st_nlink,
+		printf(" %2ld %s  %s %6ld %s\n",
+		(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
 		nazwaUzytkownika(tablicaPlikow[i].dokumentstat.st_uid),
 		nazwaGrupy(tablicaPlikow[i].dokumentstat.st_gid),
+		tablicaPlikow[i].dokumentstat.st_size,
 		tablicaPlikow[i].nazwa);
 	
 	}
