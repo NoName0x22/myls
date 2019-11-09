@@ -9,6 +9,8 @@
 #include <linux/limits.h>
 #include <stdio.h>
 
+
+
 const char * miesiace[12] = {"sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paz", "lis", "gru"};
 
 /* Struktura Przechowujaca Dane o Pojednycznym Pliku ! */
@@ -42,6 +44,7 @@ int porownanie(const void *a, const void*b){
 
 }
 
+/*Funkcja Umożliwiająca Konwersję z Liczby Sekund z st_ctime na Czytelną Wersję */
 char* dataOdCzasu(char* str, time_t val)
 {		time_t aktualny_czas;
 		time(&aktualny_czas);
@@ -97,10 +100,10 @@ void uprawnienia(unsigned int Prawa){
 			(Prawa & S_IROTH ? 'r' : '-'),
 			(Prawa & S_IWOTH ? 'w' : '-'),
 			(Prawa & S_IXOTH ? 'x' : '-'));
-	printf("%s", buffer);
+			printf("%s",buffer);
 }
 
-
+/* Funkcja Pobierająca Maksymalną szerokość Wyświetlanych Pól aby móc poźniej ustalić ich szerokość przy wyświetlaniu */
 void pobierzMaksSzerokoscKolumn(plik tablica[], int rozmiar, int szerokosc[]){
 	int tempszerokosc[2] = {0,0}; 
 	int i = 0;
@@ -159,9 +162,6 @@ int main(int args, char* argv[]){
 		for(;;){
 			direntp = readdir(dirp);
 			if(direntp == NULL) break;
-			if(strcmp(direntp->d_name,".") == 0) continue;
-			if(strcmp(direntp->d_name,"..") == 0) continue;
-			if(direntp->d_name[0] == '.') continue;
 			iloscplikow ++;	
 		}
 		
@@ -174,10 +174,10 @@ int main(int args, char* argv[]){
 		for(;;){
 			direntp = readdir(dirp);
 			if(direntp == NULL) break;
-			if(strcmp(direntp->d_name,".") == 0) continue;
-			if(strcmp(direntp->d_name,"..") == 0) continue;
-			if(direntp->d_name[0] == '.') continue;
-			lstat(direntp->d_name,&filestat);
+			if((lstat(direntp->d_name,&filestat)) == -1){
+				perror("Lstat");
+				return 1;
+			}
 			tablicaPlikow[i].dokumentstat = filestat;
 			sprintf(tablicaPlikow[i].nazwa, "%s", direntp->d_name);
 			i++;
@@ -186,10 +186,11 @@ int main(int args, char* argv[]){
 		printf("\n");
 		
 		qsort(tablicaPlikow,iloscplikow,sizeof(plik),porownanie); /* QSort Uzyty do Posortowania Nazw Plikow W Porzadku Alfabetycznym !! */
-		pobierzMaksSzerokoscKolumn(tablicaPlikow,iloscplikow,szerokoscKolumn);
+		pobierzMaksSzerokoscKolumn(tablicaPlikow,iloscplikow,szerokoscKolumn); 
 		
 		for(i = 0; i < iloscplikow; i++){
-			if(!S_ISLNK(tablicaPlikow[i].dokumentstat.st_mode)){
+			if(!S_ISLNK(tablicaPlikow[i].dokumentstat.st_mode)){ /* Warunek Sprawdzający Czy Plik Jest Linkem  */
+				
 				uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
 				printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
 				(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
@@ -199,7 +200,9 @@ int main(int args, char* argv[]){
 				tablicaPlikow[i].dokumentstat.st_size,
 				dataOdCzasu(data,tablicaPlikow[i].dokumentstat.st_ctime),
 				tablicaPlikow[i].nazwa);
-			}else{
+				
+			}else{ /* Blok Pobierania Danych O Linku w Przypadku Gdy Plik Jest linkiem */
+				
 				char *buf;
 				ssize_t nbytes, bufsiz;
 				char buffor[255];
@@ -237,7 +240,36 @@ int main(int args, char* argv[]){
 		}
 			free(tablicaPlikow);
 			closedir(dirp);
+	}else if(args == 2){
+		
+		char sciezka[255];
+		
+		struct stat fstat;
+		if((lstat(argv[1], &fstat)) == -1){
+			perror("lstat");
+			return 1; 
+		}
+		if(S_ISDIR(fstat.st_mode)){
+			printf("Plik jest Katalogiem\n");
+		}else if(S_ISREG(fstat.st_mode)){
+			realpath(argv[1],sciezka);
+			printf("Informacje o %s\n", argv[1]);
+			printf("Typ Pliku: Zwykly Plik\n");
+			printf("Sciezka : %s\n",sciezka);
+			printf("Rozmiar: %lu\n", fstat.st_size);
+			printf("Uprawnienia: "); 
+			uprawnienia(fstat.st_mode);
+			
+			
+		}else if(S_ISLNK(fstat.st_mode)){
+			printf("Plik jest Linkiem \n");
+		}
+	
+	}else{
+		printf("Przyklad Uzycia: ./myls [nazwa_pliku]\n");
+		return 1;
 	}
+	
 	
 
 	return 0;
