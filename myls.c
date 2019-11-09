@@ -16,7 +16,7 @@
 #define S_IFCHR  0020000  /* character special */
 #define S_IFIFO  0010000  /* named pipe (fifo) */
 
-const char * miesiace[12] = {"Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paz", "Lis", "Gru"};
+const char * miesiace[12] = {"sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paz", "lis", "gru"};
 
 /* Struktura Przechowujaca Dane o Pojednycznym Pliku ! */
 typedef struct{
@@ -53,9 +53,13 @@ char* dataOdCzasu(char* str, time_t val)
 {		time_t aktualny_czas;
 		time(&aktualny_czas);
 		if(aktualny_czas - val < 15778463){
-        sprintf(str, "%d %2s %d:%d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
+			if(localtime(&val)->tm_min < 10){
+				sprintf(str, "%2d %3.3s %d:%0d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
+			}else{
+				sprintf(str, "%2d %3.3s %d:%d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
+			}
 		}else{
-		sprintf(str, "%d %2s %d:", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_year); 
+		sprintf(str, "%2d %3.3s %d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_year+1900); 
 		}
         return str;
 }
