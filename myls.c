@@ -6,6 +6,7 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <grp.h>
+#include <time.h>
 
 
 #define S_IFREG  0100000  /* regular */
@@ -44,6 +45,12 @@ int porownanie(const void *a, const void*b){
 	
 	return(strcmp(pa->nazwa,pb->nazwa));
 
+}
+
+char* dataOdCzasu(char* str, time_t val)
+{
+        strftime(str, 36, "%d.%m.%Y %H:%M:%S", localtime(&val));
+        return str;
 }
 
 /*Funkcja Zwracająca typ pliku */
@@ -133,6 +140,7 @@ int main(int args, char* argv[]){
 	int iloscplikow = 0;
 	int i = 0;
 	int szerokoscKolumn[2];
+	char data[36];
 	
 	
 	
@@ -176,12 +184,13 @@ int main(int args, char* argv[]){
 		
 		for(i = 0; i < iloscplikow; i++){
 			uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
-			printf(" %*ld %s  %s %*ld %s\n",szerokoscKolumn[0],
+			printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
 			(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
 			nazwaUzytkownika(tablicaPlikow[i].dokumentstat.st_uid),
 			nazwaGrupy(tablicaPlikow[i].dokumentstat.st_gid),
 			szerokoscKolumn[1],
 			tablicaPlikow[i].dokumentstat.st_size,
+			dataOdCzasu(data,tablicaPlikow[i].dokumentstat.st_ctime),
 			tablicaPlikow[i].nazwa);
 		
 		}
