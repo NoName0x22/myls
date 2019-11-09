@@ -8,6 +8,7 @@
 #include <time.h>
 #include <linux/limits.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 
 
@@ -234,6 +235,7 @@ int main(int args, char* argv[]){
 				tablicaPlikow[i].dokumentstat.st_size,
 				dataOdCzasu(data,tablicaPlikow[i].dokumentstat.st_ctime),
 				buffor);
+				free(buf);
 				
 			}
 		
@@ -241,17 +243,55 @@ int main(int args, char* argv[]){
 			free(tablicaPlikow);
 			closedir(dirp);
 	}else if(args == 2){
-		
-		char sciezka[255];
-		
+			
 		struct stat fstat;
 		if((lstat(argv[1], &fstat)) == -1){
 			perror("lstat");
 			return 1; 
 		}
 		if(S_ISDIR(fstat.st_mode)){
-			printf("Plik jest Katalogiem\n");
+			char sciezka[255];
+			realpath(argv[1],sciezka);
+			printf("Informacje o %s\n", argv[1]);
+			printf("Typ Pliku: Katalog\n");
+			printf("Sciezka : %s\n",sciezka);
+			printf("Rozmiar: %lu\n", fstat.st_size);
+			printf("Uprawnienia: "); 
+			uprawnienia(fstat.st_mode);
+			printf("\n");
+			printf("Ostatnio Uzywany: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_atime)->tm_year + 1900,
+			localtime(&fstat.st_atime)->tm_hour,
+			localtime(&fstat.st_atime)->tm_min,
+			localtime(&fstat.st_atime)->tm_sec);
+			
+			printf("Ostatnio Modyfikowany: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_mtime)->tm_year + 1900,
+			localtime(&fstat.st_mtime)->tm_hour,
+			localtime(&fstat.st_mtime)->tm_min,
+			localtime(&fstat.st_mtime)->tm_sec);
+			
+			printf("Ostatnio Zmieniany Stan: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_ctime)->tm_year + 1900,
+			localtime(&fstat.st_ctime)->tm_hour,
+			localtime(&fstat.st_ctime)->tm_min,
+			localtime(&fstat.st_ctime)->tm_sec);
+			
+			
+			
+			
 		}else if(S_ISREG(fstat.st_mode)){
+			char sciezka[255];
+			int cat;
+			char zawartosc[80];
+			size_t nbity = sizeof(zawartosc);
+			ssize_t odczytanebity;
 			realpath(argv[1],sciezka);
 			printf("Informacje o %s\n", argv[1]);
 			printf("Typ Pliku: Zwykly Plik\n");
@@ -259,10 +299,104 @@ int main(int args, char* argv[]){
 			printf("Rozmiar: %lu\n", fstat.st_size);
 			printf("Uprawnienia: "); 
 			uprawnienia(fstat.st_mode);
+			printf("\n");
+			printf("Ostatnio Uzywany: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_atime)->tm_year + 1900,
+			localtime(&fstat.st_atime)->tm_hour,
+			localtime(&fstat.st_atime)->tm_min,
+			localtime(&fstat.st_atime)->tm_sec);
 			
+			printf("Ostatnio Modyfikowany: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_mtime)->tm_year + 1900,
+			localtime(&fstat.st_mtime)->tm_hour,
+			localtime(&fstat.st_mtime)->tm_min,
+			localtime(&fstat.st_mtime)->tm_sec);
 			
+			printf("Ostatnio Zmieniany Stan: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_ctime)->tm_year + 1900,
+			localtime(&fstat.st_ctime)->tm_hour,
+			localtime(&fstat.st_ctime)->tm_min,
+			localtime(&fstat.st_ctime)->tm_sec);
+			
+			if(!(fstat.st_mode & S_IXOTH) && !(fstat.st_mode & S_IXGRP) && !(fstat.st_mode & S_IXUSR)){
+				printf("Poczatkowa Zawartosc:\n");
+				cat = open(argv[1], O_RDONLY);
+				odczytanebity = read(cat, zawartosc, nbity);
+				printf("%d", (int)odczytanebity);
+				printf("%s", zawartosc);
+				printf("%s\n", zawartosc);
+				
+				close(cat);
+			}
 		}else if(S_ISLNK(fstat.st_mode)){
-			printf("Plik jest Linkiem \n");
+			
+			char sciezka[255];
+			char *buf;
+			ssize_t nbytes, bufsiz;
+			char buffor[255];
+			bufsiz = fstat.st_size + 1;
+			
+			realpath(argv[1],sciezka);
+			
+			if (fstat.st_size == 0){
+					bufsiz = PATH_MAX;
+				}
+				
+				buf = malloc(bufsiz);
+			
+			if (buf == NULL) {
+				perror("malloc");
+				exit(EXIT_FAILURE);
+			}
+			
+			nbytes = readlink(argv[1], buf, bufsiz);
+			if (nbytes == -1) {
+				perror("readlink");
+				exit(EXIT_FAILURE);
+			}
+				
+			snprintf(buffor,sizeof(buffor),"%s %s",sciezka, buf);
+			
+			printf("Informacje o %s\n", argv[1]);
+			printf("Typ Pliku: Link Symboliczny\n");
+			printf("Sciezka : %s\n","1234");
+			printf("Wskazuje Na: %s\n",sciezka);
+			printf("Rozmiar: %lu\n", fstat.st_size);
+			printf("Uprawnienia: "); 
+			uprawnienia(fstat.st_mode);
+			printf("\n");
+			printf("Ostatnio Uzywany: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_atime)->tm_year + 1900,
+			localtime(&fstat.st_atime)->tm_hour,
+			localtime(&fstat.st_atime)->tm_min,
+			localtime(&fstat.st_atime)->tm_sec);
+			
+			printf("Ostatnio Modyfikowany: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_mtime)->tm_year + 1900,
+			localtime(&fstat.st_mtime)->tm_hour,
+			localtime(&fstat.st_mtime)->tm_min,
+			localtime(&fstat.st_mtime)->tm_sec);
+			
+			printf("Ostatnio Zmieniany Stan: %d %s %d %d:%d:%d\n", 
+			localtime(&fstat.st_atime)->tm_mday, 
+			miesiace[localtime(&fstat.st_atime)->tm_mon], 
+			localtime(&fstat.st_ctime)->tm_year + 1900,
+			localtime(&fstat.st_ctime)->tm_hour,
+			localtime(&fstat.st_ctime)->tm_min,
+			localtime(&fstat.st_ctime)->tm_sec);
+			
+			free(buf);
+		
 		}
 	
 	}else{
