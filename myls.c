@@ -89,6 +89,7 @@ void uprawnienia(unsigned int Prawa){
 	printf("%s", buffer);
 }
 
+
 void pobierzMaksSzerokoscKolumn(plik tablica[], int rozmiar, int szerokosc[]){
 	int tempszerokosc[2] = {0,0}; 
 	int i = 0;
@@ -146,6 +147,9 @@ int main(int args, char* argv[]){
 		for(;;){
 			direntp = readdir(dirp);
 			if(direntp == NULL) break;
+			if(strcmp(direntp->d_name,".") == 0) continue;
+			if(strcmp(direntp->d_name,"..") == 0) continue;
+			if(direntp->d_name[0] == '.') continue;
 			iloscplikow ++;	
 		}
 		
@@ -158,6 +162,9 @@ int main(int args, char* argv[]){
 		for(;;){
 			direntp = readdir(dirp);
 			if(direntp == NULL) break;
+			if(strcmp(direntp->d_name,".") == 0) continue;
+			if(strcmp(direntp->d_name,"..") == 0) continue;
+			if(direntp->d_name[0] == '.') continue;
 			stat(direntp->d_name,&filestat);
 			tablicaPlikow[i].dokumentstat = filestat;
 			sprintf(tablicaPlikow[i].nazwa, "%s", direntp->d_name);
@@ -166,7 +173,7 @@ int main(int args, char* argv[]){
 		
 		qsort(tablicaPlikow,iloscplikow,sizeof(plik),porownanie); /* QSort Uzyty do Posortowania Nazw Plikow W Porzadku Alfabetycznym !! */
 		pobierzMaksSzerokoscKolumn(tablicaPlikow,iloscplikow,szerokoscKolumn);
-
+		
 		for(i = 0; i < iloscplikow; i++){
 			uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
 			printf(" %*ld %s  %s %*ld %s\n",szerokoscKolumn[0],
