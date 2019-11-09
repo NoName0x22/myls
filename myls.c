@@ -16,6 +16,8 @@
 #define S_IFCHR  0020000  /* character special */
 #define S_IFIFO  0010000  /* named pipe (fifo) */
 
+const char * miesiace[12] = {"Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paz", "Lis", "Gru"};
+
 /* Struktura Przechowujaca Dane o Pojednycznym Pliku ! */
 typedef struct{
 	char nazwa[255];
@@ -48,8 +50,13 @@ int porownanie(const void *a, const void*b){
 }
 
 char* dataOdCzasu(char* str, time_t val)
-{
-        strftime(str, 36, "%d.%m.%Y %H:%M:%S", localtime(&val));
+{		time_t aktualny_czas;
+		time(&aktualny_czas);
+		if(aktualny_czas - val < 15778463){
+        sprintf(str, "%d %2s %d:%d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
+		}else{
+		sprintf(str, "%d %2s %d:", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_year); 
+		}
         return str;
 }
 
