@@ -53,13 +53,13 @@ char* dataOdCzasu(char* str, time_t val)
 {		time_t aktualny_czas;
 		time(&aktualny_czas);
 		if(aktualny_czas - val < 15778463){
-			if(localtime(&val)->tm_min < 10){
+			if(localtime(&val)->tm_min < 10){ /* Trywialny Sposób Dodawania Zera przed Minutami mniejszymi od 10*/
 				sprintf(str, "%2d %3.3s %d:%02d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
 			}else{
 				sprintf(str, "%2d %3.3s %d:%d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
 			}
 		}else{
-		sprintf(str, "%2d %3.3s %d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_year+1900); 
+		sprintf(str, "%2d %3.3s %5d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_year+1900); 
 		}
         return str;
 }
