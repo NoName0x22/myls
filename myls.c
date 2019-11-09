@@ -54,7 +54,7 @@ char* dataOdCzasu(char* str, time_t val)
 		time(&aktualny_czas);
 		if(aktualny_czas - val < 15778463){
 			if(localtime(&val)->tm_min < 10){
-				sprintf(str, "%2d %3.3s %d:%0d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
+				sprintf(str, "%2d %3.3s %d:%02d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
 			}else{
 				sprintf(str, "%2d %3.3s %d:%d", localtime(&val)->tm_mday, miesiace[localtime(&val)->tm_mon], localtime(&val)->tm_hour, localtime(&val)->tm_min); 
 			}
