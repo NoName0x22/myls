@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -7,7 +6,8 @@
 #include <unistd.h>
 #include <grp.h>
 #include <time.h>
-
+#include <linux/limits.h>
+#include <stdio.h>
 
 const char * miesiace[12] = {"sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paz", "lis", "gru"};
 
@@ -189,15 +189,50 @@ int main(int args, char* argv[]){
 		pobierzMaksSzerokoscKolumn(tablicaPlikow,iloscplikow,szerokoscKolumn);
 		
 		for(i = 0; i < iloscplikow; i++){
-			uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
-			printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
-			(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
-			nazwaUzytkownika(tablicaPlikow[i].dokumentstat.st_uid),
-			nazwaGrupy(tablicaPlikow[i].dokumentstat.st_gid),
-			szerokoscKolumn[1],
-			tablicaPlikow[i].dokumentstat.st_size,
-			dataOdCzasu(data,tablicaPlikow[i].dokumentstat.st_ctime),
-			tablicaPlikow[i].nazwa);
+			if(!S_ISLNK(tablicaPlikow[i].dokumentstat.st_mode)){
+				uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
+				printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
+				(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
+				nazwaUzytkownika(tablicaPlikow[i].dokumentstat.st_uid),
+				nazwaGrupy(tablicaPlikow[i].dokumentstat.st_gid),
+				szerokoscKolumn[1],
+				tablicaPlikow[i].dokumentstat.st_size,
+				dataOdCzasu(data,tablicaPlikow[i].dokumentstat.st_ctime),
+				tablicaPlikow[i].nazwa);
+			}else{
+				char *buf;
+				ssize_t nbytes, bufsiz;
+				char buffor[255];
+				bufsiz = tablicaPlikow[i].dokumentstat.st_size + 1;
+				if (tablicaPlikow[i].dokumentstat.st_size == 0){
+					bufsiz = PATH_MAX;
+				}
+				
+				buf = malloc(bufsiz);
+				if (buf == NULL) {
+					perror("malloc");
+					exit(EXIT_FAILURE);
+				}
+				
+				nbytes = readlink(tablicaPlikow[i].nazwa, buf, bufsiz);
+				if (nbytes == -1) {
+					perror("readlink");
+					exit(EXIT_FAILURE);
+				}
+				
+				snprintf(buffor,sizeof(buffor),"%s -> %.*s\n", tablicaPlikow[i].nazwa, (int) nbytes, buf);
+				
+				uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
+				printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
+				(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
+				nazwaUzytkownika(tablicaPlikow[i].dokumentstat.st_uid),
+				nazwaGrupy(tablicaPlikow[i].dokumentstat.st_gid),
+				szerokoscKolumn[1],
+				tablicaPlikow[i].dokumentstat.st_size,
+				dataOdCzasu(data,tablicaPlikow[i].dokumentstat.st_ctime),
+				buffor);
+				
+			}
 		
 		}
 			free(tablicaPlikow);
