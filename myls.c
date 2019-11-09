@@ -9,13 +9,6 @@
 #include <time.h>
 
 
-#define S_IFREG  0100000  /* regular */
-#define S_IFDIR  0040000  /* directory */
-#define S_IFLNK  0120000  /* symbolic link */
-#define S_IFBLK  0060000  /* block special */
-#define S_IFCHR  0020000  /* character special */
-#define S_IFIFO  0010000  /* named pipe (fifo) */
-
 const char * miesiace[12] = {"sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paz", "lis", "gru"};
 
 /* Struktura Przechowujaca Dane o Pojednycznym Pliku ! */
@@ -69,17 +62,17 @@ static int znakTypuPliku(unsigned int mode)
 {
     char c;
 
-    if (mode & S_IFREG)
+    if (S_ISREG(mode))
         c = '-';
-    else if (mode & S_IFDIR)
+    else if (S_ISDIR(mode))
         c = 'd';
-    else if (mode & S_IFBLK)
+    else if (S_ISBLK(mode))
         c = 'b';
-    else if (mode & S_IFCHR)
+    else if (S_ISCHR(mode))
         c = 'c';
-    else if (mode & S_IFIFO)
+    else if (S_ISFIFO(mode))
         c = 'p';
-    else if (mode & S_IFLNK)
+    else if (S_ISLNK(mode))
         c = 'l';
     else
     {
@@ -184,11 +177,13 @@ int main(int args, char* argv[]){
 			if(strcmp(direntp->d_name,".") == 0) continue;
 			if(strcmp(direntp->d_name,"..") == 0) continue;
 			if(direntp->d_name[0] == '.') continue;
-			stat(direntp->d_name,&filestat);
+			lstat(direntp->d_name,&filestat);
 			tablicaPlikow[i].dokumentstat = filestat;
 			sprintf(tablicaPlikow[i].nazwa, "%s", direntp->d_name);
 			i++;
 		}
+		
+		printf("\n");
 		
 		qsort(tablicaPlikow,iloscplikow,sizeof(plik),porownanie); /* QSort Uzyty do Posortowania Nazw Plikow W Porzadku Alfabetycznym !! */
 		pobierzMaksSzerokoscKolumn(tablicaPlikow,iloscplikow,szerokoscKolumn);
@@ -205,7 +200,6 @@ int main(int args, char* argv[]){
 			tablicaPlikow[i].nazwa);
 		
 		}
-		
 			free(tablicaPlikow);
 			closedir(dirp);
 	}
