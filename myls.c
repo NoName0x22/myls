@@ -14,8 +14,7 @@
 
 /*
  * ZNANE BUGI 
- * 1. Brak Wyswietlania Sciezki Linku dla ./myls plik
- * 2. Wyświetlanie Początkowej Zawartości 80 znaków nie zawsze działa poprawnie.
+ * 1. Wyświetlanie Początkowej Zawartości 80 znaków nie zawsze działa poprawnie.
  * */
 
 
@@ -260,14 +259,14 @@ int main(int args, char* argv[]){
 		if(S_ISDIR(fstat.st_mode)){
 			char sciezka[255];
 			realpath(argv[1],sciezka);
-			printf("Informacje o %s\n", argv[1]);
-			printf("Typ Pliku: Katalog\n");
-			printf("Sciezka : %s\n",sciezka);
-			printf("Rozmiar: %lu\n", fstat.st_size);
-			printf("Uprawnienia: "); 
+			printf("Informacje o\t%s\n", argv[1]);
+			printf("Typ Pliku:\tKatalog\n");
+			printf("Sciezka :\t%s\n",sciezka);
+			printf("Rozmiar:\t%lu\n", fstat.st_size);
+			printf("Uprawnienia:\t"); 
 			uprawnienia(fstat.st_mode);
 			printf("\n");
-			printf("Ostatnio Uzywany: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Uzywany:\t%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_atime)->tm_year + 1900,
@@ -275,7 +274,7 @@ int main(int args, char* argv[]){
 			localtime(&fstat.st_atime)->tm_min,
 			localtime(&fstat.st_atime)->tm_sec);
 			
-			printf("Ostatnio Modyfikowany: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Modyfikowany:\t%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_mtime)->tm_year + 1900,
@@ -283,7 +282,7 @@ int main(int args, char* argv[]){
 			localtime(&fstat.st_mtime)->tm_min,
 			localtime(&fstat.st_mtime)->tm_sec);
 			
-			printf("Ostatnio Zmieniany Stan: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Zmieniany Stan:%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_ctime)->tm_year + 1900,
@@ -301,14 +300,14 @@ int main(int args, char* argv[]){
 			size_t nbity = sizeof(zawartosc);
 			ssize_t odczytanebity;
 			realpath(argv[1],sciezka);
-			printf("Informacje o %s\n", argv[1]);
-			printf("Typ Pliku: Zwykly Plik\n");
-			printf("Sciezka : %s\n",sciezka);
-			printf("Rozmiar: %lu\n", fstat.st_size);
-			printf("Uprawnienia: "); 
+			printf("Informacje o\t%s\n", argv[1]);
+			printf("Typ Pliku:\tZwykly Plik\n");
+			printf("Sciezka :\t%s\n",sciezka);
+			printf("Rozmiar:\t%lu\n", fstat.st_size);
+			printf("Uprawnienia:\t"); 
 			uprawnienia(fstat.st_mode);
 			printf("\n");
-			printf("Ostatnio Uzywany: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Uzywany:\t%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_atime)->tm_year + 1900,
@@ -316,7 +315,7 @@ int main(int args, char* argv[]){
 			localtime(&fstat.st_atime)->tm_min,
 			localtime(&fstat.st_atime)->tm_sec);
 			
-			printf("Ostatnio Modyfikowany: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Modyfikowany:\t%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_mtime)->tm_year + 1900,
@@ -324,7 +323,7 @@ int main(int args, char* argv[]){
 			localtime(&fstat.st_mtime)->tm_min,
 			localtime(&fstat.st_mtime)->tm_sec);
 			
-			printf("Ostatnio Zmieniany Stan: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Zmieniany Stan:%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_ctime)->tm_year + 1900,
@@ -347,7 +346,12 @@ int main(int args, char* argv[]){
 			char *buf;
 			ssize_t nbytes, bufsiz;
 			char buffor[255];
+			char buffor2[255];
+			char cwd[255];
 			bufsiz = fstat.st_size + 1;
+			if((getcwd(cwd,sizeof(cwd))) != NULL){
+				snprintf(buffor2,sizeof(buffor2),"\t%s/%s\n",cwd,argv[1]);
+			}
 			
 			realpath(argv[1],sciezka);
 			
@@ -371,14 +375,14 @@ int main(int args, char* argv[]){
 			snprintf(buffor,sizeof(buffor),"%s %s",sciezka, buf);
 			
 			printf("Informacje o %s\n", argv[1]);
-			printf("Typ Pliku: Link Symboliczny\n");
-			printf("Sciezka : %s\n","-----");
-			printf("Wskazuje Na: %s\n",sciezka);
-			printf("Rozmiar: %lu\n", fstat.st_size);
-			printf("Uprawnienia: "); 
+			printf("Typ Pliku: \tLink Symboliczny\n");
+			printf("Sciezka:%s",buffor2);
+			printf("Wskazuje Na: \t%s\n",sciezka);
+			printf("Rozmiar: \t%lu\n", fstat.st_size);
+			printf("Uprawnienia:\t"); 
 			uprawnienia(fstat.st_mode);
 			printf("\n");
-			printf("Ostatnio Uzywany: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Uzywany:\t%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_atime)->tm_year + 1900,
@@ -386,7 +390,7 @@ int main(int args, char* argv[]){
 			localtime(&fstat.st_atime)->tm_min,
 			localtime(&fstat.st_atime)->tm_sec);
 			
-			printf("Ostatnio Modyfikowany: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Modyfikowany:\t%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_mtime)->tm_year + 1900,
@@ -394,7 +398,7 @@ int main(int args, char* argv[]){
 			localtime(&fstat.st_mtime)->tm_min,
 			localtime(&fstat.st_mtime)->tm_sec);
 			
-			printf("Ostatnio Zmieniany Stan: %d %s %d %d:%d:%d\n", 
+			printf("Ostatnio Zmieniany Stan:%d %s %d %d:%d:%d\n", 
 			localtime(&fstat.st_atime)->tm_mday, 
 			miesiace[localtime(&fstat.st_atime)->tm_mon], 
 			localtime(&fstat.st_ctime)->tm_year + 1900,
