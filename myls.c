@@ -12,6 +12,14 @@
 
 
 
+/*
+ * ZNANE BUGI 
+ * 1. Brak Wyswietlania Sciezki Linku dla ./myls plik
+ * 2. Wyświetlanie Początkowej Zawartości 80 znaków nie zawsze działa poprawnie.
+ * */
+
+
+
 const char * miesiace[12] = {"sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paz", "lis", "gru"};
 
 /* Struktura Przechowujaca Dane o Pojednycznym Pliku ! */
