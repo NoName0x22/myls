@@ -14,7 +14,8 @@
 
 /*
  * ZNANE BUGI 
- * 1. Wyświetlanie Początkowej Zawartości 80 znaków nie zawsze działa poprawnie.
+ * 1. Błędne Wyswietlania Sciezki na Plik wskazywany przez Link dla ./myls plik w przypadku gdy odczytywany link znajduje się w innym katalogu;
+ * 2. Wyświetlanie Początkowej Zawartości 80 znaków nie zawsze działa poprawnie.
  * */
 
 
