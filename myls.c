@@ -13,6 +13,10 @@
 
 
 /*
+ * @
+ * @ AUTHOR Filip Płacheciński
+ * @ NRINDEKSU 297083
+ * @
  * ZNANE BUGI 
  * 1. Błędne Wyswietlania Sciezki na Plik wskazywany przez Link dla ./myls plik w przypadku gdy odczytywany link znajduje się w innym katalogu;
  * 2. Wyświetlanie Początkowej Zawartości 80 znaków nie zawsze działa poprawnie.
@@ -150,18 +154,19 @@ void pobierzMaksSzerokoscKolumn(plik tablica[], int rozmiar, int szerokosc[]){
 
 int main(int args, char* argv[]){
 	DIR* dirp;
-	struct dirent* direntp;
-	struct stat filestat;
-	plik* tablicaPlikow;
-	int iloscplikow = 0;
-	int i = 0;
-	int szerokoscKolumn[2];
-	char data[36];
+	struct dirent* direntp; /* Struktura Przechowująca Dane z readdir(); */
+	struct stat filestat; /* Zmienna przechowująca Tymczasowe informacje z funkcji lstat(); */
+	plik* tablicaPlikow; /* Wskaźnik na Tablicę Struktur Plików */
+	int iloscplikow = 0; /* Zmienna Przeczowująca Ilość Plików W Katalogu */
+	int i = 0; /* Zmienna Sterująca Pętli */
+	int szerokoscKolumn[2]; /* Tablica Przechowująca Maksymalną Szerkość Kolumn (2) */
+	char data[36]; /*Tablica Znaków Użyta do Przechowywania oraz Wyświetlania Dat */
 	
 	
 	
 	if(args == 1){
 		
+		/* W Przypadku Gdy Nastąpi Błąd Otwierania Katalogu */
 		if((dirp = opendir(".")) == NULL){
 			perror("Nastapil Blad !!\n");
 			return 1;
@@ -200,6 +205,7 @@ int main(int args, char* argv[]){
 		for(i = 0; i < iloscplikow; i++){
 			if(!S_ISLNK(tablicaPlikow[i].dokumentstat.st_mode)){ /* Warunek Sprawdzający Czy Plik Jest Linkem  */
 				
+				/* W przypadku Gdy nie jest Linkiem, wyświeltamy Dane:*/
 				uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
 				printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
 				(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
@@ -234,6 +240,7 @@ int main(int args, char* argv[]){
 				
 				snprintf(buffor,sizeof(buffor),"%s -> %.*s\n", tablicaPlikow[i].nazwa, (int) nbytes, buf);
 				
+				/* Wyświetlanie Danych O Linku */
 				uprawnienia(tablicaPlikow[i].dokumentstat.st_mode),
 				printf(" %*ld %s  %s %*ld %s %s\n",szerokoscKolumn[0],
 				(unsigned long)tablicaPlikow[i].dokumentstat.st_nlink,
@@ -250,14 +257,14 @@ int main(int args, char* argv[]){
 		}
 			free(tablicaPlikow);
 			closedir(dirp);
-	}else if(args == 2){
+	}else if(args == 2){ /* Jeśli Program Zostanie Uruchomiony z Dodatkowym Parametrem :*/
 			
 		struct stat fstat;
 		if((lstat(argv[1], &fstat)) == -1){
 			perror("lstat");
 			return 1; 
 		}
-		if(S_ISDIR(fstat.st_mode)){
+		if(S_ISDIR(fstat.st_mode)){ /* Wyświetlanie Informacji o Katalogu*/
 			char sciezka[255];
 			realpath(argv[1],sciezka);
 			printf("Informacje o\t%s\n", argv[1]);
@@ -294,7 +301,7 @@ int main(int args, char* argv[]){
 			
 			
 			
-		}else if(S_ISREG(fstat.st_mode)){
+		}else if(S_ISREG(fstat.st_mode)){ /* Wyświetlanie Informacji o Zwykłym Pliku*/
 			char sciezka[255];
 			int cat;
 			char zawartosc[80];
@@ -341,7 +348,7 @@ int main(int args, char* argv[]){
 				}
 				close(cat);
 			}
-		}else if(S_ISLNK(fstat.st_mode)){
+		}else if(S_ISLNK(fstat.st_mode)){ /* Wyświetlanie Informacji o Linku*/
 			
 			char sciezka[255];
 			char *buf;
@@ -411,7 +418,7 @@ int main(int args, char* argv[]){
 		
 		}
 	
-	}else{
+	}else{ /* W Przypadku Gdy Program zostanie Wywołany W Zły Sposób ! */
 		printf("Przyklad Uzycia: ./myls [nazwa_pliku]\n");
 		return 1;
 	}
