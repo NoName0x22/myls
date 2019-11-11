@@ -372,7 +372,7 @@ int main(int args, char* argv[]){
 			
 			printf("Informacje o %s\n", argv[1]);
 			printf("Typ Pliku: Link Symboliczny\n");
-			printf("Sciezka : %s\n","1234");
+			printf("Sciezka : %s\n","-----");
 			printf("Wskazuje Na: %s\n",sciezka);
 			printf("Rozmiar: %lu\n", fstat.st_size);
 			printf("Uprawnienia: "); 
