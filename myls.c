@@ -336,10 +336,9 @@ int main(int args, char* argv[]){
 				printf("Poczatkowa Zawartosc:\n");
 				cat = open(argv[1], O_RDONLY);
 				odczytanebity = read(cat, zawartosc, nbity);
-				printf("%d", (int)odczytanebity);
-				printf("%s", zawartosc);
-				printf("%s\n", zawartosc);
-				
+				if(odczytanebity != 0){
+					printf("%s\n", zawartosc);
+				}
 				close(cat);
 			}
 		}else if(S_ISLNK(fstat.st_mode)){
